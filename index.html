@@ -136,32 +136,44 @@
                 .key(k => k.location).sortKeys(d3.ascending)
                 .entries(data);
 
-      /*  nested.forEach(function (d) {
-            d3.tsv("data/coord_country.tsv", function (couTemp) {
-                couTemp.forEach(function (k) { if (k.ISO3 == d.key) { d.couName= k.Country } })
-            })
-        })
-        console.log(nested)*/
+        var temp = [];
 
-        document.getElementById("country_dropdown").innerHTML = "<option value=\"OECD\" selected=\"selected\">OCDE</option>";
         d3.tsv("data/coord_country.tsv", function (couTemp) {
+            var count = 0;
+            nested.forEach(function (d) {
+                couTemp.forEach(function (k) {
+                    if (k.ISO3 == d.key) {
+                        temp.push({ "Country": k.Country, "ISO3": d.key });
 
-            nested.sort(function (a,b) { return a.couName - b.couName }).forEach(function (d) {
-                
-                var x = document.getElementById("country_dropdown");
-                if (d.key != "undefined" && d.key != "OECD") {
-                    var option = document.createElement("option");
-                    option.value = d.key;
-                    var couname;
-                    couTemp.forEach(function (k) { if (k.ISO3 == d.key) { couname = k.Country; } })
-                    option.innerHTML = couname;
-
-                    x.appendChild(option);
-
-                }
+                    }
+                })
+                count++;
+                if (count == nested.length)
+                    updateDropdown()
             })
 
         })
+        function updateDropdown() {
+            document.getElementById("country_dropdown").innerHTML = "<option value=\"OECD\" selected=\"selected\">OECD</option>";
+
+            temp.sort((a, b) => a.Country.localeCompare(b.Country)).forEach(function (k) {
+                nested.forEach(function (d) {
+
+                    if (k.ISO3 == d.key) {
+                        var x = document.getElementById("country_dropdown");
+                        if (d.key != "undefined" && d.key != "OECD") {
+                            var option = document.createElement("option");
+                            option.value = d.key;
+                            option.innerHTML = k.Country;
+                            x.appendChild(option);
+
+                        }
+                    }
+
+                })
+            })
+
+        }
 
         updatechart("OECD") 
 
